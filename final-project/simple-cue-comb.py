@@ -58,6 +58,12 @@ def plot_gaussians(mu1, sigma1, mu2, sigma2, mu3, sigma3, hand):
 # Define the parameters for the two Gaussians
 mu1, sigma1 = 0, 0.5  # Mean and standard deviation for the visual estimate
 mu2, sigma2 = 4, 1.5  # Mean and standard deviation for the proprioceptive estimate
+
+
+# Just learning rate -----------------------------------------------------
+'''
+Visual variance increases over time, so adaptation is ain interplay between this decrease and changes in movement to minmize perceived errror
+'''
 bias = mu2 - mu1
 hand_actual = [mu2 - bias]
 
@@ -76,39 +82,46 @@ for i in range(trials):
     v_sigmas.append(sigma1)
     mu3, sigma3 = cue_combination([mu1, mus[-1]], [1/sigma1**2, 1/sigma2**2])
     perceived_hand.append(mu3)
-    error =  B*(0 - perceived_hand[-1])
-    mu2 += error
+    error =  A*perceived_hand[-1]  + B*(0 - perceived_hand[-1])
+    mu2 -= error
     mus.append(mu2)
     hand_actual.append(mu2 - bias)
 
 
 
 plt.figure(figsize=(10,7))
-plt.subplot(2,1,1)
+# plt.subplot(2,1,1)
 plt.plot(perceived_hand, marker='.', linestyle='none', color='green', label='Perceived Hand')
 plt.plot(hand_actual, marker='.', linestyle='none', color='red', label='Actual Hand')
 plt.plot(mus, marker='.', linestyle='none', color='blue', label='Proprioceptive Estimate')
 plt.xlabel('Trials')
 plt.ylabel('Error')
-plt.title(f'Error over Trials \n Learning Rate = {B}, $\sigma$ execution = {0.05}')
+plt.title(f'Error over Trials \n A = {A}, B = {B}, $\sigma$ execution = {0.05}')
 plt.legend(frameon=False)
 ax = plt.gca()  # Get current axes
 ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)
-plt.subplot(2,1,2)
-plt.plot(v_sigmas, marker='.', linestyle='none', color='blue', label='Visual Sigma')
-plt.xlabel('Trials')
-plt.ylabel('$\sigma$')
+# plt.subplot(2,1,2)
+# plt.plot(v_sigmas, marker='.', linestyle='none', color='blue', label='Visual Sigma')
+# plt.xlabel('Trials')
+# plt.ylabel('$\sigma$')
 plt.legend(frameon=False)
 ax = plt.gca()  # Get current axes
 ax.spines['top'].set_visible(False)
 ax.spines['right'].set_visible(False)
 plt.tight_layout()
-plt.savefig('state_space_sim3.svg')
+plt.savefig('model1.svg')
 plt.show()
 
 
 
+
+
+# Simple state space model -----------------------------------------------
+'''
+State space model
+Visual variance goes to 100 - so perceived hand is always at proprioceptive estimate
+'''
 # perceived_hand = [mu2]
 # hand_actual = [mu2 - bias]
 # trials = 50
